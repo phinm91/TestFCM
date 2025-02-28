@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">TestFCM</string>
+    <string name="title_list_reminder">Danh sách lời nhắc</string>
+    <string name="title_create_reminder">Tạo lời nhắc</string>
+    <string name="title_edit_reminder">Sửa lời nhắc</string>
+</resources>
