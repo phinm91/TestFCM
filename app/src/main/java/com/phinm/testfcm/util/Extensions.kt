@@ -3,6 +3,7 @@ package com.phinm.testfcm.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.Settings
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -10,6 +11,7 @@ import java.time.OffsetTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 @SuppressLint("HardwareIds")
@@ -20,6 +22,11 @@ fun Long.toUTCISOFormat(): String {
     return Instant.ofEpochMilli(this)  // Chuyển từ milliseconds thành Instant
         .atOffset(ZoneOffset.UTC)      // Đưa về múi giờ UTC
         .format(DateTimeFormatter.ISO_INSTANT) // Định dạng theo ISO 8601
+}
+
+fun Long.fromDateToString(): String {
+    return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        .format(Date(this))
 }
 
 fun LocalTime.toUTCFormat(

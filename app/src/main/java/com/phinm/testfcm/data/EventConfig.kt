@@ -30,7 +30,7 @@ data class EventConfig(
 ) {
     companion object {
         const val NOTIFICATION_INTERVAL_FORMAT_NONE = "NONE"
-        const val NOTIFICATION_INTERVAL_FORMAT_DAILY = "d"
+        const val NOTIFICATION_INTERVAL_FORMAT_DAILY = "1d"
         const val NOTIFICATION_INTERVAL_FORMAT_MINUTES = "m"
 
         private val random: Random by lazy { Random.Default }
