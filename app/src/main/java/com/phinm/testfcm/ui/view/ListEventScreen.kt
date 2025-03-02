@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.navigation.NavigationDestination
 import com.phinm.testfcm.viewmodel.AppViewModelProvider
@@ -40,6 +41,7 @@ object ListEventsDestination: NavigationDestination {
 fun ListEventsScreen(
     modifier: Modifier = Modifier,
     eventViewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    navHostController: NavHostController
 ) {
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
@@ -47,9 +49,7 @@ fun ListEventsScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    coroutineScope.launch {
-                        eventViewModel.addEvent(EventConfig.randomEvent())
-                    }
+                    navHostController.navigate(route = NewEventDestination.route)
                 },
             ) {
                 Icon(

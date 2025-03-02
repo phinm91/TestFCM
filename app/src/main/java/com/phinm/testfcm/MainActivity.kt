@@ -8,10 +8,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.navigation.compose.rememberNavController
+import com.phinm.testfcm.ui.navigation.NavigationHost
 import com.phinm.testfcm.ui.theme.TestFCMTheme
-import com.phinm.testfcm.ui.view.ListEventsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,8 +23,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TestFCMTheme {
-                ListEventsScreen(
-                    modifier = Modifier,
+                val navController = rememberNavController()
+                NavigationHost(
+                    modifier = Modifier.systemBarsPadding().padding(16.dp),
+                    navController = navController,
                 )
             }
         }

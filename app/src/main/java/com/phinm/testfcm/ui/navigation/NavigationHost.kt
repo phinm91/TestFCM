@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.phinm.testfcm.ui.view.ListEventsDestination
 import com.phinm.testfcm.ui.view.ListEventsScreen
+import com.phinm.testfcm.ui.view.NewEventDestination
+import com.phinm.testfcm.ui.view.NewEventScreen
 
 @Composable
 fun NavigationHost(
@@ -19,7 +21,10 @@ fun NavigationHost(
         modifier = modifier,
     ) {
         composable(route = ListEventsDestination.route) {
-            ListEventsScreen()
+            ListEventsScreen(navHostController = navController)
+        }
+        composable(route = NewEventDestination.route) {
+            NewEventScreen(navHostController = navController)
         }
     }
 }

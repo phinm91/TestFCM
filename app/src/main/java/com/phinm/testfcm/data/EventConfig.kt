@@ -20,13 +20,13 @@ import kotlin.random.Random
 @Entity
 data class EventConfig(
     @PrimaryKey
-    val id: String = "",
-    val title: String = "",
-    val description: String = "",
-    val notifyDate: String = "",
-    val firstNotifyTime: String = "",
-    val lastNotifyTime: String = "",
-    val notificationInterval: String = NOTIFICATION_INTERVAL_FORMAT_NONE
+    var id: String = "",
+    var title: String = "",
+    var description: String = "",
+    var notifyDate: String = "",
+    var firstNotifyTime: String = "",
+    var lastNotifyTime: String = "",
+    var notificationInterval: String = NOTIFICATION_INTERVAL_FORMAT_NONE
 ) {
     companion object {
         const val NOTIFICATION_INTERVAL_FORMAT_NONE = "NONE"

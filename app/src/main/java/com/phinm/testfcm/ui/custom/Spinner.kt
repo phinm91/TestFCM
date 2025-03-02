@@ -1,4 +1,4 @@
-package com.phinm.testfcm.ui.view
+package com.phinm.testfcm.ui.custom
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons

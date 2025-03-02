@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
@@ -19,15 +20,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.phinm.testfcm.data.EventConfig
+import com.phinm.testfcm.ui.custom.MyDatePicker
+import com.phinm.testfcm.ui.custom.Spinner
 
 @Composable
 fun EventBody(
     modifier: Modifier = Modifier,
     eventConfig: EventConfig? = null,
+
     onDone: (EventConfig) -> Unit = {},
 ) {
-    val title by remember { mutableStateOf(eventConfig?.title ?: "") }
-    val description by remember { mutableStateOf(eventConfig?.description ?: "") }
+    var title by remember { mutableStateOf(eventConfig?.title ?: "") }
+    var description by remember { mutableStateOf(eventConfig?.description ?: "") }
     var repeatable by remember { mutableStateOf(eventConfig?.isRepeatedDaily() ?: false) }
     var date by remember { mutableStateOf(eventConfig?.notifyDate ?: "") }
     val firstNotifyTime by remember { mutableStateOf(eventConfig?.firstNotifyTime ?: "09:00") }
@@ -36,22 +40,22 @@ fun EventBody(
         mutableStateOf(
             eventConfig?.notificationInterval
                 ?: EventConfig.NOTIFICATION_INTERVAL_FORMAT_DAILY
-            )
+        )
     }
 
     Column(
         modifier = modifier,
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
             value = title,
-            onValueChange = {},
+            onValueChange = { title = it },
             label = { Text("Title") },
         )
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
             value = description,
-            onValueChange = {},
+            onValueChange = { description = it },
             label = { Text("Description") },
         )
 
@@ -80,7 +84,7 @@ fun EventBody(
             ) {
                 notifyInterval = it
             }
-            if (eventConfig?.notificationInterval == EventConfig.NOTIFICATION_INTERVAL_FORMAT_DAILY) {
+            if (notifyInterval == EventConfig.NOTIFICATION_INTERVAL_FORMAT_DAILY) {
                 //Lặp lại hàng ngày, mỗi ngày 1 lần.
                 Button(onClick = {
 
@@ -108,10 +112,9 @@ fun EventBody(
             Row {
                 MyDatePicker(
                     date = date,
-                    format = "Ngày :"
-                ) {
-                    date = it
-                }
+                    format = "Ngày %s",
+                    onPicked = { date = it}
+                )
 
                 Button(onClick = {
 
@@ -121,13 +124,25 @@ fun EventBody(
             }
         }
 
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-
-            }
+        Row(
+            modifier = Modifier.padding(top = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Done")
+            Button(onClick = {
+                //TODO : Tạo item EventConfig từ dữ liệu đang có.
+                val result = eventConfig?.copy() ?: EventConfig()
+                result.apply {
+                    this.title = title
+                    this.description = description
+                    this.notifyDate = date
+                    this.firstNotifyTime = firstNotifyTime
+                    this.lastNotifyTime = lastNotifyTime
+                    this.notificationInterval = notifyInterval
+                }
+                onDone(result)
+            }) {
+                Text("Done")
+            }
         }
     }
 }
