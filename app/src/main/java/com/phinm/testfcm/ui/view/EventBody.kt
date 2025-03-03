@@ -24,6 +24,7 @@ import com.phinm.testfcm.ui.custom.MyDatePicker
 import com.phinm.testfcm.ui.custom.MyTimePicker
 import com.phinm.testfcm.ui.custom.Spinner
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun EventBody(
@@ -150,6 +151,7 @@ fun EventBody(
                 //TODO : Tạo item EventConfig từ dữ liệu đang có.
                 val result = eventConfig?.copy() ?: EventConfig()
                 result.apply {
+                    if (this.id.isBlank()) this.id = UUID.randomUUID().toString()
                     this.title = title
                     this.description = description
                     this.notifyDate = date

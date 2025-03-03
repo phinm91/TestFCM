@@ -13,6 +13,8 @@ import com.phinm.testfcm.util.deviceUUID
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
 class EventViewModel(
@@ -32,21 +34,19 @@ class EventViewModel(
 
     suspend fun addEvent(eventConfig: EventConfig) {
         eventRepository.insertEvent(eventConfig)
-        eventRepository.getEvents().collectLatest {
-            pushEventToFirebase(it)
-        }
+        pushEventToFirebase(eventRepository.getEvents().first())
     }
 
     suspend fun deleteEvent(eventConfig: EventConfig) {
         eventRepository.deleteEvent(eventConfig)
-        eventRepository.getEvents().collectLatest {
+        eventRepository.getEvents().onEach {
             pushEventToFirebase(it)
         }
     }
 
     suspend fun updateEvent(eventConfig: EventConfig) {
         eventRepository.updateEvent(eventConfig)
-        eventRepository.getEvents().collectLatest {
+        eventRepository.getEvents().onEach {
             pushEventToFirebase(it)
         }
     }

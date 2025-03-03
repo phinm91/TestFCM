@@ -70,11 +70,7 @@ fun ListEventsScreen(
                 }
             },
             onUpdate = {
-                coroutineScope.launch {
-                    eventViewModel.updateEvent(
-                        EventConfig.updateEvent(it)
-                    )
-                }
+                navHostController.navigate(route = EditEventDestination.route)
             },
         )
     }

@@ -9,13 +9,13 @@ import com.phinm.testfcm.ui.navigation.NavigationDestination
 import com.phinm.testfcm.viewmodel.AppViewModelProvider
 import kotlinx.coroutines.launch
 
-object NewEventDestination: NavigationDestination {
-    override val route = "new_event"
+object EditEventDestination: NavigationDestination {
+    override val route = "edit_event"
     override val titleRes = -1
 }
 
 @Composable
-fun NewEventScreen(
+fun EditEventScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     eventViewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -25,7 +25,7 @@ fun NewEventScreen(
         modifier = modifier
     ) {
         scope.launch {
-            eventViewModel.addEvent(eventConfig = it)
+            eventViewModel.updateEvent(eventConfig = it)
             navController.popBackStack()
         }
     }
