@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.navigation.NavigationDestination
 import com.phinm.testfcm.viewmodel.AppViewModelProvider
@@ -40,7 +41,7 @@ object ListEventsDestination: NavigationDestination {
 @Composable
 fun ListEventsScreen(
     modifier: Modifier = Modifier,
-    eventViewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    listEventsViewModel: ListEventsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     navHostController: NavHostController
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -60,17 +61,17 @@ fun ListEventsScreen(
             }
         },
     ) { innerPadding ->
-        val events by eventViewModel.events.collectAsStateWithLifecycle()
+        val events by listEventsViewModel.events.collectAsStateWithLifecycle()
         ListEvents(
             modifier = Modifier.padding(innerPadding),
             events,
             onDelete = {
                 coroutineScope.launch {
-                    eventViewModel.deleteEvent(it)
+                    listEventsViewModel.deleteEvent(it)
                 }
             },
             onUpdate = {
-                navHostController.navigate(route = EditEventDestination.route)
+                navHostController.navigate(route = "${EditEventDestination.route}/${it.id}")
             },
         )
     }

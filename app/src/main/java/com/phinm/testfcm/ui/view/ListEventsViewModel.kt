@@ -13,11 +13,10 @@ import com.phinm.testfcm.util.deviceUUID
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class EventViewModel(
+class ListEventsViewModel(
     private val eventRepository: EventRepository
 ) : ViewModel() {
     private val _events: StateFlow<List<EventConfig>> = eventRepository.getEvents().stateIn(
@@ -27,34 +26,28 @@ class EventViewModel(
     )
     val events: StateFlow<List<EventConfig>> = _events
 
-    private val firebaseEvents : DatabaseReference by lazy {
+    init {
+        viewModelScope.launch {
+            eventRepository.getEvents().collectLatest {
+                pushEventToFirebase(it)
+            }
+        }
+    }
+
+    private val firebaseEvents: DatabaseReference by lazy {
         Firebase.database("https://testfcm-35082-default-rtdb.asia-southeast1.firebasedatabase.app/")
             .getReference("Events")
     }
 
-    suspend fun addEvent(eventConfig: EventConfig) {
-        eventRepository.insertEvent(eventConfig)
-        pushEventToFirebase(eventRepository.getEvents().first())
-    }
-
     suspend fun deleteEvent(eventConfig: EventConfig) {
         eventRepository.deleteEvent(eventConfig)
-        eventRepository.getEvents().onEach {
-            pushEventToFirebase(it)
-        }
     }
 
-    suspend fun updateEvent(eventConfig: EventConfig) {
-        eventRepository.updateEvent(eventConfig)
-        eventRepository.getEvents().onEach {
-            pushEventToFirebase(it)
-        }
-    }
-
-    private fun pushEventToFirebase(eventConfigs : List<EventConfig>){
+    private fun pushEventToFirebase(eventConfigs: List<EventConfig>) {
+        val token = MainApplication.fcmToken() ?: return
         val uuid = MainApplication.getAppContext().deviceUUID()
         val user = FirebaseUser(
-            notifyToken = MainApplication.fcmToken(),
+            notifyToken = token,
             events = eventConfigs.map { it.toFirebaseEvent() }
         )
         firebaseEvents.child(uuid)

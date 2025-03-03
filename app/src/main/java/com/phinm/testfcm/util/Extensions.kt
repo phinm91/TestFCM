@@ -6,10 +6,12 @@ import android.provider.Settings
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -30,7 +32,7 @@ fun Long.fromDateToString(): String {
 }
 
 fun LocalTime.toUTCFormat(
-    zoneOffset: ZoneOffset = ZoneOffset.of("Asia/Ho_Chi_Minh")
+    zoneOffset: ZoneOffset = defaultZoneOffset()
 ) : String {
     val offsetTime = this.atOffset(zoneOffset)
     val utcTime = offsetTime.withOffsetSameInstant(ZoneOffset.UTC)
@@ -38,7 +40,7 @@ fun LocalTime.toUTCFormat(
 }
 
 fun String.fromUTCTimeToLocaleTime(
-    zoneOffset: ZoneOffset = ZoneOffset.of("Asia/Ho_Chi_Minh")
+    zoneOffset: ZoneOffset = defaultZoneOffset()
 ) : String {
     // Bước 1: Phân tích chuỗi "09:20Z" thành OffsetTime
     val utcTime = OffsetTime.parse(this) // Thời gian UTC
@@ -48,9 +50,20 @@ fun String.fromUTCTimeToLocaleTime(
     return convertedTime.toString()
 }
 
+fun fromLocalTimeToUTCTime(
+    hour: Int, minute: Int,
+    zoneId: ZoneId = ZoneId.systemDefault()
+) : String {
+    val localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(hour, minute))
+    val zonedDateTime = localDateTime.atZone(zoneId)
+    val utcZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneOffset.UTC)
+
+    return utcZonedDateTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mmX"))
+}
+
 fun String.convertUTCISOtoDeviceTimeZone(
     pattern: String = "yyyy-MM-dd HH:mm",
-    zoneId: ZoneId = ZoneId.of("Asia/Ho_Chi_Minh")
+    zoneId: ZoneId = ZoneId.systemDefault()
 ): String {
     return try {
         val instant = Instant.parse(this)
@@ -63,3 +76,5 @@ fun String.convertUTCISOtoDeviceTimeZone(
         "Invalid Time Format"
     }
 }
+
+fun defaultZoneOffset() : ZoneOffset = ZonedDateTime.now(ZoneId.systemDefault()).offset

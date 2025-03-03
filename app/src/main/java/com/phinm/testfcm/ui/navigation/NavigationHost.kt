@@ -3,8 +3,10 @@ package com.phinm.testfcm.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.phinm.testfcm.ui.view.EditEventDestination
 import com.phinm.testfcm.ui.view.EditEventScreen
 import com.phinm.testfcm.ui.view.ListEventsDestination
@@ -28,7 +30,12 @@ fun NavigationHost(
         composable(route = NewEventDestination.route) {
             NewEventScreen(navController = navController)
         }
-        composable(route = EditEventDestination.route) {
+        composable(
+            route = EditEventDestination.routeWithArgs,
+            arguments = listOf(navArgument(EditEventDestination.itemIdArg) {
+                type = NavType.StringType
+            })
+        ) {
             EditEventScreen(navController = navController)
         }
     }

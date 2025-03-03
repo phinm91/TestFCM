@@ -12,20 +12,22 @@ import kotlinx.coroutines.launch
 object NewEventDestination: NavigationDestination {
     override val route = "new_event"
     override val titleRes = -1
+    const val itemIdArg = "itemId"
+    val routeWithArgs = "$route/{$itemIdArg}"
 }
 
 @Composable
 fun NewEventScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    eventViewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    newEventViewModel: NewEventViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val scope = rememberCoroutineScope()
     EventBody(
         modifier = modifier
     ) {
         scope.launch {
-            eventViewModel.addEvent(eventConfig = it)
+            newEventViewModel.addEvent(eventConfig = it)
             navController.popBackStack()
         }
     }

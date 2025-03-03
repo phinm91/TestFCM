@@ -23,6 +23,9 @@ import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.custom.MyDatePicker
 import com.phinm.testfcm.ui.custom.MyTimePicker
 import com.phinm.testfcm.ui.custom.Spinner
+import com.phinm.testfcm.util.fromLocalTimeToUTCTime
+import com.phinm.testfcm.util.fromUTCTimeToLocaleTime
+import java.time.ZoneOffset
 import java.util.Locale
 import java.util.UUID
 
@@ -36,8 +39,16 @@ fun EventBody(
     var description by remember { mutableStateOf(eventConfig?.description ?: "") }
     var repeatable by remember { mutableStateOf(eventConfig?.isRepeatedDaily() ?: false) }
     var date by remember { mutableStateOf(eventConfig?.notifyDate ?: "") }
-    var firstNotifyTime by remember { mutableStateOf(eventConfig?.firstNotifyTime ?: "09:00") }
-    var lastNotifyTime by remember { mutableStateOf(eventConfig?.lastNotifyTime ?: "21:00") }
+    var firstNotifyTime by remember {
+        mutableStateOf(
+            eventConfig?.firstNotifyTime?.fromUTCTimeToLocaleTime() ?: "09:00"
+        )
+    }
+    var lastNotifyTime by remember {
+        mutableStateOf(
+            eventConfig?.lastNotifyTime?.fromUTCTimeToLocaleTime() ?: "21:00"
+        )
+    }
     var notifyInterval by remember {
         mutableStateOf(
             eventConfig?.notificationInterval
@@ -49,13 +60,17 @@ fun EventBody(
         modifier = modifier,
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             value = title,
             onValueChange = { title = it },
             label = { Text("Title") },
         )
         TextField(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             value = description,
             onValueChange = { description = it },
             label = { Text("Description") },
@@ -94,7 +109,7 @@ fun EventBody(
                     minute = firstNotifyTime.split(":")[1].toInt(),
                     format = "Giờ %02d:%02d",
                     onTimeSelected = { hour, minute ->
-                        firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                        firstNotifyTime = fromLocalTimeToUTCTime(hour, minute)
                     }
                 )
             } else {
@@ -106,7 +121,7 @@ fun EventBody(
                         minute = firstNotifyTime.split(":")[1].toInt(),
                         format = "Giờ bắt đầu %02d:%02d",
                         onTimeSelected = { hour, minute ->
-                            firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                            firstNotifyTime = fromLocalTimeToUTCTime(hour, minute)
                         }
                     )
 
@@ -116,7 +131,8 @@ fun EventBody(
                         minute = lastNotifyTime.split(":")[1].toInt(),
                         format = "Giờ kết thúc %02d:%02d",
                         onTimeSelected = { hour, minute ->
-                            lastNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                            lastNotifyTime =
+                                String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
                         }
                     )
                 }
@@ -129,7 +145,7 @@ fun EventBody(
                     modifier = Modifier.padding(start = 8.dp),
                     date = date,
                     format = "Ngày %s",
-                    onPicked = { date = it}
+                    onPicked = { date = it }
                 )
 
                 MyTimePicker(
@@ -137,7 +153,8 @@ fun EventBody(
                     hour = firstNotifyTime.split(":")[0].toInt(),
                     minute = firstNotifyTime.split(":")[1].toInt(),
                     onTimeSelected = { hour, minute ->
-                        firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                        firstNotifyTime =
+                            String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
                     }
                 )
             }

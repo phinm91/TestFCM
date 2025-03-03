@@ -80,6 +80,9 @@ interface EventDao {
     @Query("SELECT * FROM EventConfig")
     fun getEvents(): Flow<List<EventConfig>>
 
+    @Query("SELECT * FROM EventConfig WHERE id = :id")
+    fun getEventById(id: String) : Flow<EventConfig?>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertEvent(eventConfig: EventConfig)
 
@@ -92,6 +95,7 @@ interface EventDao {
 
 class EventRepository(private val eventDao: EventDao) {
     fun getEvents(): Flow<List<EventConfig>> = eventDao.getEvents()
+    fun getEventById(id: String) = eventDao.getEventById(id)
     suspend fun insertEvent(eventConfig: EventConfig) = eventDao.insertEvent(eventConfig)
     suspend fun updateEvent(eventConfig: EventConfig) = eventDao.updateEvent(eventConfig)
     suspend fun deleteEvent(eventConfig: EventConfig) = eventDao.deleteEvent(eventConfig)

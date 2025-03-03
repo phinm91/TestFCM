@@ -13,7 +13,10 @@ class MainApplication: Application() {
         private const val TAG = "MainApplication"
         private lateinit var instance: MainApplication
 
-        fun fcmToken() = instance.fcmToken
+        fun fcmToken(): String? {
+            return if (instance::fcmToken.isInitialized) instance.fcmToken
+            else null
+        }
 
         fun getAppContext(): Context {
             return instance.applicationContext
