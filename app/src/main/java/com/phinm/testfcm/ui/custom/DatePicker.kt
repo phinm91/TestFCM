@@ -1,6 +1,5 @@
 package com.phinm.testfcm.ui.custom
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -13,12 +12,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.phinm.testfcm.util.fromDateToString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDatePicker(
+    modifier: Modifier = Modifier,
     date: String,
     format: String,
     onPicked: (String) -> Unit = {}
@@ -27,7 +26,7 @@ fun MyDatePicker(
     val datePickerState = rememberDatePickerState()
 
     Button(
-        modifier = Modifier.padding(horizontal = 8.dp),
+        modifier = modifier,
         onClick = { showDatePicker.value = true },
     ) {
         Text(text = String.format(format, date))

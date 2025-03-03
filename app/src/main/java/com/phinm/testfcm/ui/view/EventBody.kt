@@ -21,21 +21,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.custom.MyDatePicker
+import com.phinm.testfcm.ui.custom.MyTimePicker
 import com.phinm.testfcm.ui.custom.Spinner
+import java.util.Locale
 
 @Composable
 fun EventBody(
     modifier: Modifier = Modifier,
     eventConfig: EventConfig? = null,
-
     onDone: (EventConfig) -> Unit = {},
 ) {
     var title by remember { mutableStateOf(eventConfig?.title ?: "") }
     var description by remember { mutableStateOf(eventConfig?.description ?: "") }
     var repeatable by remember { mutableStateOf(eventConfig?.isRepeatedDaily() ?: false) }
     var date by remember { mutableStateOf(eventConfig?.notifyDate ?: "") }
-    val firstNotifyTime by remember { mutableStateOf(eventConfig?.firstNotifyTime ?: "09:00") }
-    val lastNotifyTime by remember { mutableStateOf(eventConfig?.lastNotifyTime ?: "21:00") }
+    var firstNotifyTime by remember { mutableStateOf(eventConfig?.firstNotifyTime ?: "09:00") }
+    var lastNotifyTime by remember { mutableStateOf(eventConfig?.lastNotifyTime ?: "21:00") }
     var notifyInterval by remember {
         mutableStateOf(
             eventConfig?.notificationInterval
@@ -86,24 +87,37 @@ fun EventBody(
             }
             if (notifyInterval == EventConfig.NOTIFICATION_INTERVAL_FORMAT_DAILY) {
                 //Lặp lại hàng ngày, mỗi ngày 1 lần.
-                Button(onClick = {
-
-                }) {
-                    Text("Giờ $firstNotifyTime")
-                }
+                MyTimePicker(
+                    modifier = Modifier.padding(start = 8.dp),
+                    hour = firstNotifyTime.split(":")[0].toInt(),
+                    minute = firstNotifyTime.split(":")[1].toInt(),
+                    format = "Giờ %02d:%02d",
+                    onTimeSelected = { hour, minute ->
+                        firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                    }
+                )
             } else {
                 //Lặp lại hàng ngày, mỗi ngày nhiều lần.
                 Row {
-                    Button(onClick = {
+                    MyTimePicker(
+                        modifier = Modifier.padding(start = 8.dp),
+                        hour = firstNotifyTime.split(":")[0].toInt(),
+                        minute = firstNotifyTime.split(":")[1].toInt(),
+                        format = "Giờ bắt đầu %02d:%02d",
+                        onTimeSelected = { hour, minute ->
+                            firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                        }
+                    )
 
-                    }) {
-                        Text("Giờ bắt đầu $firstNotifyTime")
-                    }
-                    Button(onClick = {
-
-                    }) {
-                        Text("Giờ kết thúc $lastNotifyTime")
-                    }
+                    MyTimePicker(
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        hour = lastNotifyTime.split(":")[0].toInt(),
+                        minute = lastNotifyTime.split(":")[1].toInt(),
+                        format = "Giờ kết thúc %02d:%02d",
+                        onTimeSelected = { hour, minute ->
+                            lastNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                        }
+                    )
                 }
 
             }
@@ -111,21 +125,25 @@ fun EventBody(
             //Không lặp lại, sự kiện 1 lần duy nhất.
             Row {
                 MyDatePicker(
+                    modifier = Modifier.padding(start = 8.dp),
                     date = date,
                     format = "Ngày %s",
                     onPicked = { date = it}
                 )
 
-                Button(onClick = {
-
-                }) {
-                    Text("Giờ : $firstNotifyTime")
-                }
+                MyTimePicker(
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    hour = firstNotifyTime.split(":")[0].toInt(),
+                    minute = firstNotifyTime.split(":")[1].toInt(),
+                    onTimeSelected = { hour, minute ->
+                        firstNotifyTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+                    }
+                )
             }
         }
 
         Row(
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(top = 16.dp, start = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(onClick = {
@@ -164,8 +182,8 @@ fun EventBodyEdit1Preview() {
             title = "Chu kỳ kinh bắt đầu",
             description = "Hãy ghi lại ngày bắt đầu chu kỳ kinh nếu nó đã đến!",
             notifyDate = "2025-03-01",
-            firstNotifyTime = "02:00Z",
-            lastNotifyTime = "02:00Z",
+            firstNotifyTime = "02:00",
+            lastNotifyTime = "02:00",
             notificationInterval = "NONE"
         )
     )
@@ -182,7 +200,7 @@ fun EventBodyEdit2Preview() {
             title = "Nhắc nhở ghi cân nặng",
             description = "Hãy ghi lại cân nặng hôm nay của bạn",
             notifyDate = "",
-            firstNotifyTime = "02:00Z",
+            firstNotifyTime = "02:00",
             lastNotifyTime = "",
             notificationInterval = "1d"
         )
@@ -200,8 +218,8 @@ fun EventBodyEdit3Preview() {
             title = "Nhắc nhở uống nước",
             description = "Đến giờ uống nước rồi",
             notifyDate = "",
-            firstNotifyTime = "02:00Z",
-            lastNotifyTime = "10:00Z",
+            firstNotifyTime = "02:00",
+            lastNotifyTime = "10:00",
             notificationInterval = "90m"
         )
     )

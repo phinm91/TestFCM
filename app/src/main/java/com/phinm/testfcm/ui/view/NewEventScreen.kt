@@ -26,7 +26,7 @@ fun NewEventScreen(
     ) {
         scope.launch {
             eventViewModel.addEvent(eventConfig = it)
-            navHostController.popBackStack()
+            navHostController.navigate(ListEventsDestination.route)
         }
     }
 }
