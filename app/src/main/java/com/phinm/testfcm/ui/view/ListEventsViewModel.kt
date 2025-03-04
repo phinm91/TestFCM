@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class ListEventsViewModel(
     private val eventRepository: EventRepository
@@ -44,13 +45,17 @@ class ListEventsViewModel(
     }
 
     private fun pushEventToFirebase(eventConfigs: List<EventConfig>) {
-        val token = MainApplication.fcmToken() ?: return
+        val token = MainApplication.fcmToken() ?: run {
+            Timber.e("FCM token is null")
+            return@pushEventToFirebase
+        }
         val uuid = MainApplication.getAppContext().deviceUUID()
         val user = FirebaseUser(
             notifyToken = token,
             events = eventConfigs.map { it.toFirebaseEvent() }
         )
-        firebaseEvents.child(uuid)
+        val task = firebaseEvents.child(uuid)
             .setValue(user)
+        Timber.v("Pushing events to Firebase: ${task.isSuccessful}")
     }
 }

@@ -12,8 +12,6 @@ import kotlinx.coroutines.launch
 object NewEventDestination: NavigationDestination {
     override val route = "new_event"
     override val titleRes = -1
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "$route/{$itemIdArg}"
 }
 
 @Composable
@@ -23,7 +21,7 @@ fun NewEventScreen(
     newEventViewModel: NewEventViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val scope = rememberCoroutineScope()
-    EventBody(
+    EventEditorBody(
         modifier = modifier
     ) {
         scope.launch {

@@ -42,23 +42,32 @@ fun LocalTime.toUTCFormat(
 fun String.fromUTCTimeToLocaleTime(
     zoneOffset: ZoneOffset = defaultZoneOffset()
 ) : String {
-    // Bước 1: Phân tích chuỗi "09:20Z" thành OffsetTime
-    val utcTime = OffsetTime.parse(this) // Thời gian UTC
+    // Bước 1: Phân tích chuỗi "09:20Z" thành OffsetTime - Thời gian UTC
+    val utcTime = OffsetTime.parse(this, DateTimeFormatter.ofPattern("HH:mmX"))
 
     // Bước 3: Chuyển đổi thời gian sang múi giờ mới
     val convertedTime = utcTime.withOffsetSameInstant(zoneOffset)
-    return convertedTime.toString()
+    return convertedTime.toLocalTime().format(
+        DateTimeFormatter.ofPattern("HH:mm")
+    )
 }
 
-fun fromLocalTimeToUTCTime(
-    hour: Int, minute: Int,
+fun fromLocalTimeToString(
+    hour: Int, minute: Int
+) : String {
+    return LocalTime.of(hour, minute).format(
+        DateTimeFormatter.ofPattern("HH:mm")
+    )
+}
+
+fun String.fromLocalTimeToUTCTime(
     zoneId: ZoneId = ZoneId.systemDefault()
 ) : String {
-    val localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(hour, minute))
+    val localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse(this))
     val zonedDateTime = localDateTime.atZone(zoneId)
     val utcZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneOffset.UTC)
 
-    return utcZonedDateTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mmX"))
+    return utcZonedDateTime.format(DateTimeFormatter.ofPattern("HH:mmX"))
 }
 
 fun String.convertUTCISOtoDeviceTimeZone(

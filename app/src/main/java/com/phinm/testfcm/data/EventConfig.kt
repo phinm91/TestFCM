@@ -13,9 +13,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
-import java.util.UUID
-import kotlin.random.Random
 
 @Entity
 data class EventConfig(
@@ -30,36 +27,22 @@ data class EventConfig(
 ) {
     companion object {
         const val NOTIFICATION_INTERVAL_FORMAT_NONE = "NONE"
-        const val NOTIFICATION_INTERVAL_FORMAT_DAILY = "1d"
+        const val NOTIFICATION_INTERVAL_FORMAT_DAILY = "d"
         const val NOTIFICATION_INTERVAL_FORMAT_MINUTES = "m"
 
-        private val random: Random by lazy { Random.Default }
-        fun randomEvent(): EventConfig {
-            val ranId = random.nextLong(0, 1000)
-            return EventConfig(
-                id = UUID.randomUUID().toString(),
-                title = "Title : $ranId",
-                description = "Description : $ranId",
-                notifyDate = LocalDate.now().toString(),
-            )
-        }
+        fun String.isRepeated() = isRepeatedDaily() || isRepeatedMultiTimePerDay()
 
-        fun updateEvent(eventConfig: EventConfig): EventConfig {
-            val ranId = random.nextLong(0, 1000)
-            return eventConfig.copy(
-                title = "Title updated : $ranId",
-                description = "Description updated : $ranId",
-                notifyDate = LocalDate.now().toString(),
-            )
-        }
+        fun String.isRepeatedDaily(): Boolean = this.endsWith(NOTIFICATION_INTERVAL_FORMAT_DAILY)
+
+        fun String.isRepeatedMultiTimePerDay() = this.endsWith(NOTIFICATION_INTERVAL_FORMAT_MINUTES)
     }
 
-    fun isRepeatedDaily(): Boolean {
-        return notificationInterval != NOTIFICATION_INTERVAL_FORMAT_NONE
+    fun isRepeated(): Boolean {
+        return notificationInterval.isRepeated()
     }
 
     fun toFirebaseEvent(): FirebaseEvent {
-        val notifyTimes = if (!isRepeatedDaily() || firstNotifyTime == lastNotifyTime) {
+        val notifyTimes = if (!isRepeated() || firstNotifyTime == lastNotifyTime) {
             listOf(firstNotifyTime)
         } else {
             //TODO : Tính toán thời gian thông báo trong ngày dựa theo các mốc thời gian đã chọn.
@@ -81,7 +64,7 @@ interface EventDao {
     fun getEvents(): Flow<List<EventConfig>>
 
     @Query("SELECT * FROM EventConfig WHERE id = :id")
-    fun getEventById(id: String) : Flow<EventConfig?>
+    fun getEventById(id: String): Flow<EventConfig?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertEvent(eventConfig: EventConfig)

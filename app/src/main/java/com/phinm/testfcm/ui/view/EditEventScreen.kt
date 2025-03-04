@@ -11,6 +11,7 @@ import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.navigation.NavigationDestination
 import com.phinm.testfcm.viewmodel.AppViewModelProvider
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 object EditEventDestination: NavigationDestination {
     override val route = "edit_event"
@@ -28,12 +29,19 @@ fun EditEventScreen(
     val scope = rememberCoroutineScope()
     val event: EventConfig? by editEventViewModel.event.collectAsStateWithLifecycle()
     if (event == null) {
-        //Item đã bị xoá.
+        Timber.v("Event not found (maybe deleted)")
         navController.popBackStack()
+        return
     }
-    EventBody(
+    val eventConfig = event!!
+    if (eventConfig.id.isBlank()) {
+        Timber.v("Event is loading")
+        return
+    }
+    Timber.v("Edit event:\n$eventConfig")
+    EventEditorBody(
         modifier = modifier,
-        eventConfig =  event
+        eventConfig =  eventConfig
     ) {
         scope.launch {
             editEventViewModel.updateEvent(eventConfig = it)
