@@ -21,12 +21,6 @@ import java.util.Locale
 fun Context.deviceUUID(): String =
     Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
-fun Long.toUTCISOFormat(): String {
-    return Instant.ofEpochMilli(this)  // Chuyển từ milliseconds thành Instant
-        .atOffset(ZoneOffset.UTC)      // Đưa về múi giờ UTC
-        .format(DateTimeFormatter.ISO_INSTANT) // Định dạng theo ISO 8601
-}
-
 fun Long.fromDateToString(): String {
     return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         .format(Date(this))
@@ -69,22 +63,6 @@ fun String.fromLocalTimeToUTCTime(
     val utcZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneOffset.UTC)
 
     return utcZonedDateTime.format(DateTimeFormatter.ofPattern("HH:mmX"))
-}
-
-fun String.convertUTCISOtoDeviceTimeZone(
-    pattern: String = "yyyy-MM-dd HH:mm",
-    zoneId: ZoneId = ZoneId.systemDefault()
-): String {
-    return try {
-        val instant = Instant.parse(this)
-        val formatter =
-            DateTimeFormatter.ofPattern(pattern)
-        val localDateTime = instant.atZone(zoneId).toLocalDateTime()
-        localDateTime.format(formatter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        "Invalid Time Format"
-    }
 }
 
 fun defaultZoneOffset(): ZoneOffset = ZonedDateTime.now(ZoneId.systemDefault()).offset
