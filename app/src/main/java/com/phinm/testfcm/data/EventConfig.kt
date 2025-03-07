@@ -12,6 +12,8 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
+import com.phinm.testfcm.util.fromUTCTimeToLocaleTime
+import com.phinm.testfcm.util.generateTimePoints
 import kotlinx.coroutines.flow.Flow
 
 @Entity
@@ -45,8 +47,11 @@ data class EventConfig(
         val notifyTimes = if (!isRepeated() || firstNotifyTime == lastNotifyTime) {
             listOf(firstNotifyTime)
         } else {
-            //TODO : Tính toán thời gian thông báo trong ngày dựa theo các mốc thời gian đã chọn.
-            listOf(firstNotifyTime, lastNotifyTime)
+            generateTimePoints(
+                startTimeStr = firstNotifyTime.fromUTCTimeToLocaleTime(),
+                endTimeStr = lastNotifyTime.fromUTCTimeToLocaleTime(),
+                intervalMinutesStr = notificationInterval
+            )
         }
         return FirebaseEvent(
             id = id,
