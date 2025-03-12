@@ -8,10 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.phinm.testfcm.ui.navigation.NavigationHost
@@ -25,7 +22,7 @@ class MainActivity : ComponentActivity() {
             TestFCMTheme {
                 val navController = rememberNavController()
                 NavigationHost(
-                    modifier = Modifier.systemBarsPadding().padding(16.dp),
+                    modifier = Modifier,
                     navController = navController,
                 )
             }

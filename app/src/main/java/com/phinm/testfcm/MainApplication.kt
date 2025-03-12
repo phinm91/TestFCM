@@ -20,6 +20,10 @@ class MainApplication: Application() {
         fun getAppContext(): Context {
             return instance.applicationContext
         }
+
+        fun initFCMToken(result: (Boolean) -> Unit = {}) {
+            instance.initFCMToken(result)
+        }
     }
 
     lateinit var appContainer: AppContainer
@@ -34,19 +38,20 @@ class MainApplication: Application() {
         appContainer = AppContainer(this)
 
         FirebaseApp.initializeApp(this)
-        initFCMToken()
     }
 
-    private fun initFCMToken() {
+    fun initFCMToken(result: (Boolean) -> Unit = {}) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
-                Timber.w(task.exception, "Fetching FCM registration token failed")
+                Timber.v(task.exception, "Fetching FCM registration token failed")
+                result(false)
                 return@OnCompleteListener
             }
 
             // Get new FCM registration token
             fcmToken = task.result
-            Timber.d("FCM Token:\n$fcmToken")
+            Timber.v("FCM Token:\n$fcmToken")
+            result(true)
         })
     }
 }

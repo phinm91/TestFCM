@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.Settings
 import com.phinm.testfcm.data.EventConfig
+import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -83,28 +83,25 @@ fun generateTimePoints(
 ): List<String> {
     val startTime = startTimeStr.fromLocalTimeStrToLocalTime()
     val endTime = endTimeStr.fromLocalTimeStrToLocalTime()
+    val isOvernight = endTime.isBefore(startTime)
     val intervalMinutes = intervalMinutesStr.intervalMinutesToLong()
 
     val timePoints = mutableListOf<LocalTime>()
     var current = startTime
 
-    while (true) {
+    do {
         timePoints.add(current)
         val nextTime = current.plusMinutes(intervalMinutes)
 
-        // Điều kiện dừng: Nếu thời gian đã vượt quá endTime trong cùng ngày hoặc qua ngày hôm sau
-        if ((nextTime.isAfter(endTime) && startTime.isBefore(endTime)) ||
-            (nextTime == endTime)
-        ) {
-            timePoints.add(endTime) // Thêm thời gian kết thúc vào danh sách
-            break
-        }
+        Timber.v("nextTime check: $nextTime")
 
         current = nextTime
+    } while (
+        (!isOvernight && !current.isAfter(endTime))
+        || (isOvernight && !(current.isAfter(endTime) && current.isBefore(startTime)))
+    )
 
-        // Xử lý trường hợp qua ngày hôm sau (nếu vượt quá 23:59, quay về 00:00)
-        if (current.isBefore(startTime)) break
-    }
+    Timber.v("timePoints : $timePoints")
 
     return timePoints.map { it.toUTCFormat() }
 }

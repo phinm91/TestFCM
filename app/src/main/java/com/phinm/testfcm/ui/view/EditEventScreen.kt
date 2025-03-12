@@ -1,5 +1,14 @@
 package com.phinm.testfcm.ui.view
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -20,6 +29,7 @@ object EditEventDestination: NavigationDestination {
     val routeWithArgs = "$route/{$itemIdArg}"
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditEventScreen(
     modifier: Modifier = Modifier,
@@ -39,13 +49,29 @@ fun EditEventScreen(
         return
     }
     Timber.v("Edit event:\n$eventConfig")
-    EventEditorBody(
-        modifier = modifier,
-        eventConfig =  eventConfig
-    ) {
-        scope.launch {
-            editEventViewModel.updateEvent(eventConfig = it)
-            navController.popBackStack()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Edit Event") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        EventEditorBody(
+            modifier = modifier.padding(innerPadding),
+            eventConfig = eventConfig
+        ) {
+            scope.launch {
+                editEventViewModel.updateEvent(eventConfig = it)
+                navController.popBackStack()
+            }
         }
     }
 }

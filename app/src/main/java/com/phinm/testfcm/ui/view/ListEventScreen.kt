@@ -1,24 +1,34 @@
 package com.phinm.testfcm.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.phinm.testfcm.MainApplication
 import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.ui.navigation.NavigationDestination
 import com.phinm.testfcm.viewmodel.AppViewModelProvider
@@ -29,26 +39,36 @@ object ListEventsDestination : NavigationDestination {
     override val titleRes = -1
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListEventsScreen(
     modifier: Modifier = Modifier,
     listEventsViewModel: ListEventsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     navHostController: NavHostController
 ) {
+    var fcmTokenIsValid by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        MainApplication.initFCMToken { result ->
+            fcmTokenIsValid = result
+        }
+    }
     val coroutineScope = rememberCoroutineScope()
+    if (!fcmTokenIsValid) {
+        FCMInit(modifier)
+        return
+    }
     Scaffold(
         modifier = modifier,
+        topBar = {
+            TopAppBar(title = { Text("List Event") })
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     navHostController.navigate(route = NewEventDestination.route)
                 },
             ) {
-                Icon(
-                    Icons.Default.Add,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    contentDescription = null
-                )
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         },
     ) { innerPadding ->
@@ -66,6 +86,36 @@ fun ListEventsScreen(
             },
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FCMInit(
+    modifier: Modifier
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(title = { Text("Đang xử lý") })
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Đang khởi tạo FCM Token...")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FCMInitPreview() {
+    FCMInit(
+        modifier = Modifier.background(Color.White)
+    )
 }
 
 @Composable
