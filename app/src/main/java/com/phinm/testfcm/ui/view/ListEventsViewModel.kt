@@ -49,12 +49,16 @@ class ListEventsViewModel(
             Timber.e("FCM token is null")
             return@pushEventToFirebase
         }
-        val uuid = MainApplication.getAppContext().deviceUUID()
+        val uid = MainApplication.uid() ?: run {
+            Timber.e("UID token is null")
+            return@pushEventToFirebase
+        }
         val user = FirebaseUser(
             notifyToken = token,
             events = eventConfigs.map { it.toFirebaseEvent() }
         )
-        val task = firebaseEvents.child(uuid)
+
+        val task = firebaseEvents.child(uid)
             .setValue(user)
         Timber.v("Pushing events to Firebase: ${task.isSuccessful}")
     }

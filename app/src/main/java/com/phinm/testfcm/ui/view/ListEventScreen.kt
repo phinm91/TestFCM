@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,14 +48,21 @@ fun ListEventsScreen(
     navHostController: NavHostController
 ) {
     var fcmTokenIsValid by remember { mutableStateOf(false) }
+    var signInIsValid by remember { mutableStateOf(false) }
+    val uiStateIsValid by remember {
+        derivedStateOf { fcmTokenIsValid && signInIsValid }
+    }
     LaunchedEffect(Unit) {
         MainApplication.initFCMToken { result ->
             fcmTokenIsValid = result
         }
+        MainApplication.signInAnonymously { result ->
+            signInIsValid = result
+        }
     }
     val coroutineScope = rememberCoroutineScope()
-    if (!fcmTokenIsValid) {
-        FCMInit(modifier)
+    if (!uiStateIsValid) {
+        UserInit(modifier)
         return
     }
     Scaffold(
@@ -90,7 +98,7 @@ fun ListEventsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FCMInit(
+fun UserInit(
     modifier: Modifier
 ) {
     Scaffold(
@@ -105,7 +113,7 @@ fun FCMInit(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Đang khởi tạo FCM Token...")
+            Text(text = "Đang khởi tạo FCM Token, User ID...")
         }
     }
 }
@@ -113,7 +121,7 @@ fun FCMInit(
 @Preview(showBackground = true)
 @Composable
 fun FCMInitPreview() {
-    FCMInit(
+    UserInit(
         modifier = Modifier.background(Color.White)
     )
 }
