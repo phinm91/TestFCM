@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.phinm.testfcm.data.EventConfig
@@ -63,7 +62,6 @@ fun EventBody(
             }) {
             Icon(
                 Icons.Default.Edit,
-                tint = Color.Black,
                 contentDescription = null
             )
         }
@@ -74,7 +72,6 @@ fun EventBody(
             }) {
             Icon(
                 Icons.Default.Delete,
-                tint = Color.Black,
                 contentDescription = null
             )
         }
