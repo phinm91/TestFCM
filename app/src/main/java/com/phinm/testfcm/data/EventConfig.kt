@@ -15,6 +15,7 @@ import androidx.room.Update
 import com.phinm.testfcm.util.fromUTCTimeToLocaleTime
 import com.phinm.testfcm.util.generateTimePoints
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 @Entity
 data class EventConfig(
@@ -43,7 +44,7 @@ data class EventConfig(
         return notificationInterval.isRepeated()
     }
 
-    fun toFirebaseEvent(): FirebaseEvent {
+    fun toFirebaseEvent(): List<FirebaseEvent> {
         val notifyTimes = if (!isRepeated() || firstNotifyTime == lastNotifyTime) {
             listOf(firstNotifyTime)
         } else {
@@ -53,13 +54,16 @@ data class EventConfig(
                 intervalMinutesStr = notificationInterval
             )
         }
-        return FirebaseEvent(
-            id = id,
-            title = title,
-            description = description,
-            notifyDate = notifyDate,
-            notifyTimes = notifyTimes,
-        )
+
+        return notifyTimes.map {
+            FirebaseEvent(
+                id = UUID.randomUUID().toString(),
+                title = title,
+                description = description,
+                notifyDate = notifyDate,
+                notifyTime = it,
+            )
+        }
     }
 }
 

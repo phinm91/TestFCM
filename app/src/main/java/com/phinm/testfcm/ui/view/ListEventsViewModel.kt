@@ -2,14 +2,14 @@ package com.phinm.testfcm.ui.view
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.database
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.phinm.testfcm.MainApplication
 import com.phinm.testfcm.data.EventConfig
 import com.phinm.testfcm.data.EventRepository
-import com.phinm.testfcm.data.FirebaseUser
-import com.phinm.testfcm.util.deviceUUID
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -35,9 +35,8 @@ class ListEventsViewModel(
         }
     }
 
-    private val firebaseEvents: DatabaseReference by lazy {
-        Firebase.database("https://testfcm-35082-default-rtdb.asia-southeast1.firebasedatabase.app/")
-            .getReference("Events")
+    private val firestore: FirebaseFirestore by lazy {
+        Firebase.firestore("test-fcm")
     }
 
     suspend fun deleteEvent(eventConfig: EventConfig) {
@@ -53,13 +52,42 @@ class ListEventsViewModel(
             Timber.e("UID token is null")
             return@pushEventToFirebase
         }
-        val user = FirebaseUser(
-            notifyToken = token,
-            events = eventConfigs.map { it.toFirebaseEvent() }
-        )
+        val events = eventConfigs.flatMap { it.toFirebaseEvent() }
 
-        val task = firebaseEvents.child(uid)
-            .setValue(user)
-        Timber.v("Pushing events to Firebase: ${task.isSuccessful}")
+        val userDocumentReference = firestore.collection("reminders").document(uid)
+        userDocumentReference.set(hashMapOf("notifyToken" to token))
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Timber.d("Token updated successfully")
+                } else {
+                    Timber.e("Failed to update token: ${it.exception?.message}")
+                }
+            }
+        val eventCollectionReference = userDocumentReference.collection("events")
+        eventCollectionReference.get().addOnSuccessListener { querySnapshot ->
+            val deleteTasks = mutableListOf<Task<Void>>()
+            for (document in querySnapshot.documents) {
+                deleteTasks.add(document.reference.delete())
+            }
+            Tasks.whenAllComplete(deleteTasks)
+                .addOnCompleteListener { allTasks ->
+                    if (allTasks.isSuccessful) {
+                        Timber.d("All events deleted successfully")
+                        val batch = firestore.batch()
+                        for (event in events) {
+                            val newDocDef = eventCollectionReference.document()
+                            batch.set(newDocDef, event)
+                        }
+                        batch.commit()
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    Timber.d("Events added successfully")
+                                } else {
+                                    Timber.e("Failed to add events : ${it.exception?.message}")
+                                }
+                            }
+                    }
+                }
+        }
     }
 }
